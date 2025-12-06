@@ -1,0 +1,96 @@
+_schema-version: 3.3.0
+ID: mcp-server
+description: A simple CAP project.
+version: 1.0.0
+modules:
+  - name: mcp-server-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: mcp-server-db
+      - name: uaa_mcp-server
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+      instances: 1
+    build-parameters:
+      builder: npm-ci
+  - name: mcp-server-db-deployer
+    type: hdb
+    path: gen/db
+    requires:
+      - name: mcp-server-db
+    parameters:
+      buildpack: nodejs_buildpack
+  - name: mcp-server-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: mcp-server-destination-service
+        parameters:
+          content-target: true
+      - name: mcp-server_html_repo_host
+        parameters:
+          service-key:
+            name: mcp-server_html_repo_host-key
+      - name: uaa_mcp-server
+        parameters:
+          service-key:
+            name: uaa_mcp-server-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: mcp_cap_odata_mcp_server_html_repo_host
+              ServiceInstanceName: mcp-server-html5-app-host-service
+              ServiceKeyName: mcp-server_html_repo_host-key
+              sap.cloud.service: mcp_cap_odata
+            - Authentication: OAuth2UserTokenExchange
+              Name: mcp_cap_odata_uaa_mcp_server
+              ServiceInstanceName: mcp-server-xsuaa-service
+              ServiceKeyName: uaa_mcp-server-key
+              sap.cloud.service: mcp_cap_odata
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+resources:
+  - name: mcp-server-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: mcp-server-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+      service: destination
+      service-name: mcp-server-destination-service
+      service-plan: lite
+  - name: mcp-server_html_repo_host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: mcp-server-html5-app-host-service
+      service-plan: app-host
+  - name: uaa_mcp-server
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-name: mcp-server-xsuaa-service
+      service-plan: application
+      config:
+        xsappname: mcp-server-${org}-${space}
+        tenant-mode: dedicated
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production

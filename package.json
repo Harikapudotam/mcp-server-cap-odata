@@ -1,0 +1,35 @@
+{
+  "name": "mcp-server",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "type": "module",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@modelcontextprotocol/sdk": "^1.24.2",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "groq-sdk": "^0.37.0",
+    "node-nlp": "^5.0.0-alpha.5",
+    "openai": "^6.10.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "[production]": {
+        "auth": "dummy",
+        "db": "hana"
+      }
+    }
+  }
+}
