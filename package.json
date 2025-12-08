@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@cap-js/hana": "^2",
+    "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.24.2",
     "@sap/cds": "^9",
     "@sap/xssec": "^4",

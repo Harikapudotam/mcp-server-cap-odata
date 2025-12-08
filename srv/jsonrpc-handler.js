@@ -1,4 +1,5 @@
-import axios from "axios";
+
+// src/handleJsonRpc.js
 import { listEntitySets } from "./tools/list.js";
 import { read } from "./tools/read.js";
 import { create } from "./tools/create.js";
@@ -6,8 +7,13 @@ import { update } from "./tools/update.js";
 import { remove } from "./tools/delete.js";
 import { query } from "./tools/query.js";
 
+import { normalizeToJsonRpc } from "./normalizeToJsonRpc.js";
+
 export async function handleJsonRpc(body, context) {
-  const { id, method, params } = body;
+  // Ensure 'body' is canonical JSON-RPC 2.0 for MCP
+  const request = await normalizeToJsonRpc(body);
+
+  const { id, method, params } = request;
 
   try {
     let result;
